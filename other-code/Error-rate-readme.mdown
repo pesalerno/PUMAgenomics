@@ -1,0 +1,72 @@
+2R
+-------
+Contains the R scripts, input-output data and metainformation used to perform the analyses described in the *General processing of Stacks outputs* and  *Error rates* of the manuscript, for the datasets of the experiments *1) Exploratory analysis of Stacks assembly key parameters and SNP calling model using replicates* and *2) Effect of using different parameters on the output information content and on the detection of genetic structuring*
+
+
+#### General processing of Stacks outputs
+There is a subdirectory for the analyses using the replicates `.2R/RStacksParamSNPmod` and another for the analyses with the full dataset `.2R/PopSamples`. In each of these, the SNP (*.SNP) and coverage (*.COV) produced by the *export_sql.pl* program of *Stacks*
+are stored in the `/data.in` directory. These matrices were processed with the scripts:
+
+For the replicates analyses:
+
++ [1.StacksParam_PostCleaning_all.r](.2R/RStacksParamSNPmod/bin/1.StacksParam_PostCleaning_all.r),
++ [1.StacksSNPmod_PostCleaning_all.r](.2R/RStacksParamSNPmod/bin/1.StacksSNPmod_PostCleaning_all.r),
+
+For the full dataset analyses:
+
++ [1.PopSamples_PostCleaning.r](.2R/PopSamples/bin/1.PopSamples_PostCleaning.r) and 
+
+
+`1.*_PostCleaning.r` produces matrices of filtered loci and samples (*.SNP.SNPs) with its respective coverages (*.COV.COVs) that are stored in the `/data.out` directory. In summary it estimate the number of reads and coverage per locus, per individual and per lane; and filters data to keep only those samples having more than 50% of the mean number of loci per sample, and only those loci present in at least 80% of the barcoded samples.
+
+
+#### Running Stacks populations program to generate plink file and estimate Fst
+
+The scripts `2.pops_FstPlink_*` call the R scripts `whitelist_*.r` to generate a whitelist of loci (desired loci to perform further analyses) and population maps (listing of samples by population). With this data they then run the program *populations* from *Stacks*  to export data as plink format and estimate Fst matrices (Fst relevant only for full dataset). 
+
+For the replicates analyses:
+
++ [2.pops_FstPlink_StacksParam.script](.2R/RStacksParamSNPmod/bin/2.pops_FstPlink_StacksParam.script) and
++ [2.pops_FstPlink_SNPmod.script](.2R/RStacksParamSNPmod/bin/2.pops_FstPlink_SNPmod.script)
+
+For the full dataset analyses:
+
++ [2.pops_FstPlink_def.script](.2R/PopSamples/bin/2.pops_FstPlink_def.script) 
++ [2.pops_FstPlink_m3.script](.2R/PopSamples/bin/2.pops_FstPlink_m3.script) 
++ [2.pops_FstPlink_m4.script](.2R/PopSamples/bin/2.pops_FstPlink_m4.script) 
++ [2.pops_FstPlink_m10.script](.2R/PopSamples/bin/2.pops_FstPlink_m10.script) 
+
+
+#### Error rates
+
+The R functions to estimate the loci, allele and SNP error rates are:
+
++ [LociAllele_error.R](.2R/PopSamples/bin/LociAllele_error.R), which uses a tvs matrix of alleles and loci (export_sql Stacks) to estimate loci and allele error rates between replicate pairs based on tvs matrix (*.SNP.SNPs).
+
+and 
+
++ [SNPs_error.R](.2R/PopSamples/bin/SNPs_error.R) that uses a genlight object of SNPs, (i.e. a plink.raw to genlight object as used here) to estimate SNP error rates.
+
+These functions are also avainable at the Github repository: https://github.com/AliciaMstt/RAD-error-rates 
+
+
+
+#### Experiment 1) Exploratory analysis of Stacks assembly key parameters and SNP calling model using replicates
+
+This was done with the R scripts:
+
++ [3.StacksParam_Evaluating_PostCleaning.r](.2R/RStacksParamSNPmod/bin/3.StacksParam_Evaluating_PostCleaning.r) for the Stacks assembly parameters, and 
++ [3.StacksSNPmod_Evaluating_PostCleaning.r](.2R/RStacksParamSNPmod/bin/3.StacksSNPmod_Evaluating_PostCleaning.r) for the SNP calling model.
+
+See [3.StacksParam_Evaluating_PostCleaning.html](.2R/RStacksParamSNPmod/bin/3.StacksParam_Evaluating_PostCleaning.html)
+and [3.StacksSNPmod_Evaluating_PostCleaning.html](.2R/RStacksParamSNPmod/bin/3.StacksSNPmod_Evaluating_PostCleaning.html) for the R notebooks. 
+
+
+#### Experiment 2) Effect of using different parameters on the output information content and on the detection of genetic structuring
+
+This was done with the R script [3.PopSamples_Evaluating_PostCleaning_plink](.2R/PopSamples/bin/3.PopSamples_Evaluating_PostCleaning_plink), see [3.PopSamples_Evaluating_PostCleaning_plink.html](.2R/PopSamples/bin/3.PopSamples_Evaluating_PostCleaning_plink.html) for R notebook. 
+
+Besides the error rates functions, the script uses the functions [dist.pop.R](.2R/PopSamples/bin/dist.pop.R) to estimate distance between individuals of the same population, and and [PCoA_pop.r](.2R/PopSamples/bin/PCoA_pop.r) to perform the PCoA. This functions are also available at the Github repository: https://github.com/AliciaMstt/RAD-error-rates 
+
+
+
