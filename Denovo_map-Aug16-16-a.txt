@@ -1,0 +1,59 @@
+#!/bin/bash
+#SBATCH --job-name denovo_map
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=16
+#SBATCH --account=wildgen
+#SBATCH --time=0-100:00:00
+#SBATCH --mail-user=rgagne@uwyo.edu
+
+mkdir /project/wildgen/rgagne/ml_one-track/Denovo-a
+
+/project/wildgen/stacks-1.42/bin/denovo_map.pl -T 8 -m 3 -M 2 -n 2 -S -b 2 -X "ustacks:--max_locus_stacks [3]" -o /project/wildgen/rgagne/ml_one_track/Denovo-a/ \
+-s /project/wildgen/rgagne/ml_one-track/tags/LA97_475.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent_479.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent_483.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_500.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or97_484.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD97_485.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or04_487.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent09_524.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/LA12_525.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/LA12_527.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD14_543.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD14_546.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_493.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD09_499.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or97_478.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_494.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD08_495.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD08_497.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_498.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD14_545.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_500_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD06_502.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_503.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD97_467.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent98_468.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD_469.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD98_471.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Riv_473.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD97_474.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or97_484_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or97_478_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD14_545_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent_476.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD14_521.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD15_547.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD04_506.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/LA97_480.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/LA_481.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD97_486.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or04_488.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD01_508.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or12_520.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Riv_511.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD08_497_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/SD10_498_r.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Vent09_526.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or14_542.fq \
+-s /project/wildgen/rgagne/ml_one-track/tags/Or12_520_r.fq
