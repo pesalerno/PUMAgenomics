@@ -17,8 +17,10 @@ Now we can begin with the workflow.
 ####1. Demultiplexing in stacks
 Let's have a code that we share for cleaning the data with ***process_radtags***. Are we all using default settings?
 
+	process_radtags -f /path/to/file/sequence.fastq -b /path/to/file/barcodes-names.txt -o /path/output-folder -c -q -r -D -e nlaIII -i fastq
+
 ####2. Filtering  PCR duplicates
-This will be done mostly using Kelly's [pipeline](https://github.com/kellyp2738/CSU_ChronicWasting) which should work great for us given we have the exact same barcodes. 
+This will be done using Kelly's [program](https://github.com/kellyp2738/RADseqDuplicateFiltering) which was designed for our  exact same barcodes. 
 
 ####3. Exploratory genotyping and error estimation
 This is following the MAstretta-yanes et al paper. Code to be found/written! 
