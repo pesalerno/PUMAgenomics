@@ -19,15 +19,56 @@ Let's have a code that we share for cleaning the data with ***process_radtags***
 
 	process_radtags -f /path/to/file/sequence.fastq -b /path/to/file/barcodes-names.txt -o /path/output-folder -c -q -r -D -e nlaIII -i fastq
 
-####2. Filtering  PCR duplicates
-This will be done using Kelly's [program](https://github.com/kellyp2738/RADseqDuplicateFiltering) which was designed for our  exact same barcodes. 
 
-####3. Exploratory genotyping and error estimation
-This is following the MAstretta-yanes et al paper. Code to be found/written! 
+
+####3. Estimating sequencing error and optimizing stacks parameters 
+This is following the Mastretta-yanes et al paper. 
+
+First, you need to run several iterations of the parameters in denovo_map in order to explore parameter space with the R code of Mastretta-Yanes. You only need to run these analyses with the intra- and inter- library replicates. 
+
+
+
+Permutations | -m | -M | -n | --max_locus_stacks 
+------------ | ------------- | ------------ | ------------- | ------------ |
+a | 3 | 2 | 2 | 3 | 
+b | 5 | 2 | 2 | 3 |
+c | 7 | 2 | 2 | 3 | 
+d | 3 | 4 | 2 | 3 |
+e | 3 | 6 | 2 | 3 |
+f | 3 | 8 | 2 | 3 |
+g | 3 | 2 | 4 | 3 |
+h | 3 | 2 | 6 | 3 |
+i | 3 | 2 | 8 | 3 |
+j | 3 | 2 | 2 | 4 |
+k | 3 | 2 | 2 | 5 |
+
+
+**NOTE**: large -M values greatly increases computational time. 
+
 
 ####4. Genotyping
 
+After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
+
+After genotyping, re-run dataset using ***rxstacks***
+
+When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
+
+
+
 ####5. Post-processing of SNP matrix
 
-This will be done using the program [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml). 
+Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filter our dataset in several steps.
+
+First, filter out loci with too much missing data:
+
+	./plink --file input-name --geno 0.5 --recode --out output-filename --noweb
+
+Second, filter out individuals with too much missing data:
+
+	./plink --file input-filename --mind 0.5 --recode --out output-filename --noweb
+	
+Third, filter out minimum allele frequency:
+
+	./plink --file input-filename --maf 0.01 --recode --out output-filename --noweb
  
