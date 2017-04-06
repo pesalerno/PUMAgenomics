@@ -45,16 +45,23 @@ k | 3 | 2 | 2 | 5 |
 
 **NOTE**: large -M values greatly increases computational time. 
 
+	>>add code for loading into mysql database
+	
+	>>add info for R code once it's figured out
 
 ####4. Genotyping
 
 After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
 
+	>>add code for denovo_map.pl
+
 After genotyping, re-run dataset using ***rxstacks***
+
+	>>add code for rxstacks
 
 When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
 
-
+	>>add code for populations
 
 ####5. Post-processing of SNP matrix
 
