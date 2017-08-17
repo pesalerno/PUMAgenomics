@@ -53,15 +53,37 @@ k | 3 | 2 | 2 | 5 |
 
 After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
 
-	>>add code for denovo_map.pl
+	>>denovo_map.pl 
+	#!/bin/bash
+        #SBATCH --cluster specific info
+
+        mkdir /path/to/denovomap_out
+
+        denovo_map.pl -T 16 -m 5 -M 2 -n 2 -S -b 2 -X "ustacks:--max_locus_stacks [3]" -o /path/to/denovomap_out/ \
+        -s /path/to/rad_tags/filename.fq \ 
+        -s /path/to/rad_tags/filename.fq \
+        -s /path/to/rad_tags/filename.fq \
+        -s /path/to/rad_tags/filename.fq 
 
 After genotyping, re-run dataset using ***rxstacks***
 
-	>>add code for rxstacks
+	>>rxstacks
+	#!/bin/bash
+	#SBATCH cluster specific information 
+
+        mkdir /path/to/rxstacks-out
+        rxstacks -b 2 -P /path/to/denovomap_out -o /path/to/rxstacks-out --conf_filter --prune_haplo --model_type bounded --bound_high 0.1 --lnl_lim -10.0 -t 8
+
+Need to re-run cstacks and sstacks portion of stacks pipeline. 
 
 When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
 
-	>>add code for populations
+	>>populations 
+	#!/bin/bash
+	#SBATCH cluster specific information 
+
+	populations -b 2 -P /project/wildgen/rgagne/combine/populations/pop-comb-c/ -M /project/wildgen/rgagne/combine/populations/pop-map-combine -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
+
 
 ####5. Post-processing of SNP matrix
 
