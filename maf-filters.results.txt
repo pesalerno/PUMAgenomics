@@ -1,0 +1,28 @@
+PUMA things:
+
+When filtering loci with less than 60% of individuals sampled and 
+individuals with less than 50% data: 
+before final filter: 28766 SNPs
+# individuals filtered: 1 of 135 individuals
+
+MAF 0.01 filter: 17821 SNPs
+
+MAF 0.02: 16256 SNPs
+
+MAF 0.05: 13925 SNPs
+
+
+
+When filtering out loci with less than 75% individuals sampled: 20355 SNPs
+# individuals filtered: 1 of 135 individuals
+
+MAF 0.01: 12786 SNPs
+
+MAF 0.02: 11915 SNPs
+
+MAF 0.05: 10315 SNPs
+
+I AM KEEPING THE ONE WITH LESS MISSING DATA.
+
+
+

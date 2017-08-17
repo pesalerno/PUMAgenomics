@@ -1,4 +1,5 @@
-# PUMAgenomics
+PUMAgenomics
+======
 
 First, we start out generating our [markdown](https://en.wikipedia.org/wiki/Markdown) document with any available program. I use [MOU](http://25.io/mou/) which is great since it live updates your document based on your code, so it's super easy for learning, but I think it's only for mac. 
 
@@ -11,17 +12,23 @@ To begin editing this and other documents in the repository, first navigate to t
 
 A general description on how to collaborate on github can be found [here](http://code.tutsplus.com/tutorials/how-to-collaborate-on-github--net-34267).
 
+I made a handy-dandy short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
+
 
 Now we can begin with the workflow. 
 
-####1. Demultiplexing in stacks
+1. Demultiplexing in stacks
+-----
+
 Let's have a code that we share for cleaning the data with ***process_radtags***. Are we all using default settings?
 
 	process_radtags -f /path/to/file/sequence.fastq -b /path/to/file/barcodes-names.txt -o /path/output-folder -c -q -r -D -e nlaIII -i fastq
 
 
 
-####3. Estimating sequencing error and optimizing stacks parameters 
+3. Estimating sequencing error and optimizing stacks parameters 
+-----
+
 This is following the Mastretta-yanes et al paper. 
 
 First, you need to run several iterations of the parameters in denovo_map in order to explore parameter space with the R code of Mastretta-Yanes. You only need to run these analyses with the intra- and inter- library replicates. 
@@ -49,7 +56,8 @@ k | 3 | 2 | 2 | 5 |
 	
 	>>add info for R code once it's figured out
 
-####4. Genotyping
+4. Genotyping
+-------
 
 After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
 
@@ -76,6 +84,9 @@ After genotyping, re-run dataset using ***rxstacks***
 
 Need to re-run cstacks and sstacks portion of stacks pipeline. 
 
+5. Exporting SNP matrix in **populations** (STACKS) using minimal filtering.
+------
+
 When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
 
 	>>populations 
@@ -85,19 +96,66 @@ When you are done, use minimum filter settings in **Stacks** in order to get the
 	populations -b 2 -P /project/wildgen/rgagne/combine/populations/pop-comb-c/ -M /project/wildgen/rgagne/combine/populations/pop-map-combine -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
 
 
-####5. Post-processing of SNP matrix
+6. Post-processing of SNP matrix
+-------
+
+Because we found an issue with the fastQC files (ADD IMAGE) where there were more SNPs than expected by chance on the last few positions of the read, we decided to post-filter all the SNPs present in read positions 94 and up. We used [this code]()
+
 
 Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filter our dataset in several steps.
 
 First, filter out loci with too much missing data:
 
-	./plink --file input-name --geno 0.5 --recode --out output-filename --noweb
+	./plink --file input-name --geno 0.5 --recode --out output-filename_a --noweb
 
 Second, filter out individuals with too much missing data:
 
-	./plink --file input-filename --mind 0.5 --recode --out output-filename --noweb
+	./plink --file input-filename_a --mind 0.5 --recode --out output-filename_b --noweb
 	
 Third, filter out minimum allele frequency:
 
-	./plink --file input-filename --maf 0.01 --recode --out output-filename --noweb
+	./plink --file input-filename_b --maf 0.01 --recode --out output-filename_c --noweb
  
+Filter out several levels of missing data and of minor allele frequencies to evaluate missingness of final matrix and potential population metrics that vary (esp. with maf filters). 
+
+The results of what we found for the different filters can be found [here](). 
+
+7. Re-running **populations** with a whitelist of loci and individuals that passed filters
+------
+
+We need to make a ***whitelist*** file, which is a list of the loci to include based on the plink results (i.e. on amount of missing data in locus). The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
+
+		% more whitelist
+		3
+		7
+		521
+		11
+		46
+		103
+		972
+		2653
+		22
+		
+		
+In order to get from the .map file to the whitelist file format, open *_c.map file in Text Wrangler, and do find and replace arguments using **grep**:
+
+
+	search for \d\t(\d*)_\d*\t\d\t\d*$
+	replace with \1
+
+Using the **.irem** file from the second iteration of *plink* (in our example named with termination **"_b"**), remove any individuals from the first popmap if they did not pass **plink** filters so that they are excluded from the analysis (i.e. individuals with too much missing data). 
+
+
+Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters.
+
+	populations -b 1 -P ./ -M ./popmap.txt  -p 1 -r 0.5 -W Pr-whitelist --write_random_snp --structure --plink --vcf --genepop --fstats --phylip
+
+
+
+
+8. Basic ***adegenet*** and population stats analyses for the best filtering schemes
+-----
+
+
+We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 75% individuals genotyped) and the three maf filters. We found that there was little change from maf 0.01 to maf 0.02, and essentially no change from maf 0.02 to 0.05. 
+
