@@ -1,0 +1,17 @@
+
+	cat loci-rows.txt | awk '/_95/ {count++} END {print count}' 
+		>342
+	cat loci-rows.txt | awk '/_91/ {count++} END {print count}' 
+		>164
+	cat loci-rows.txt | awk '/_92/ {count++} END {print count}' 
+		>147
+	cat loci-rows.txt | awk '/_93/ {count++} END {print count}' 
+		>180
+	cat loci-rows.txt | awk '/_94/ {count++} END {print count}' 
+		>206
+	cat loci-rows.txt | awk '/_90/ {count++} END {print count}' 
+		>153
+	cat loci-rows.txt | awk '/_95/ {count++} END {print count}' 
+		>342
+	cat loci-rows.txt | awk '/_96/ {count++} END {print count}' 
+		>0
