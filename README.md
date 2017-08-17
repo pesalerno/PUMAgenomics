@@ -12,12 +12,15 @@ To begin editing this and other documents in the repository, first navigate to t
 
 A general description on how to collaborate on github can be found [here](http://code.tutsplus.com/tutorials/how-to-collaborate-on-github--net-34267).
 
+1. github ongoing collaborations
+-----
+
 I made a handy-dandy short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
 
 
-Now we can begin with the workflow. 
+ 
 
-1. Demultiplexing in stacks
+2. Demultiplexing in stacks
 -----
 
 Let's have a code that we share for cleaning the data with ***process_radtags***. Are we all using default settings?
@@ -99,9 +102,6 @@ When you are done, use minimum filter settings in **Stacks** in order to get the
 6. Post-processing of SNP matrix
 -------
 
-Because we found an issue with the fastQC files (ADD IMAGE) where there were more SNPs than expected by chance on the last few positions of the read, we decided to post-filter all the SNPs present in read positions 94 and up. We used [this code]()
-
-
 Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filter our dataset in several steps.
 
 First, filter out loci with too much missing data:
@@ -112,13 +112,16 @@ Second, filter out individuals with too much missing data:
 
 	./plink --file input-filename_a --mind 0.5 --recode --out output-filename_b --noweb
 	
-Third, filter out minimum allele frequency:
+Third, filter out minor allele frequency:
 
 	./plink --file input-filename_b --maf 0.01 --recode --out output-filename_c --noweb
  
 Filter out several levels of missing data and of minor allele frequencies to evaluate missingness of final matrix and potential population metrics that vary (esp. with maf filters). 
 
-The results of what we found for the different filters can be found [here](). 
+The results of what we found for the different filters can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt). 
+
+
+
 
 7. Re-running **populations** with a whitelist of loci and individuals that passed filters
 ------
