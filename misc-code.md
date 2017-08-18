@@ -1,38 +1,42 @@
-# Useful, miscellaneous bits of code
+Useful, miscellaneous bits of code
+====
 
 Here are some useful, basic things that I've come across, particularly for using the Unix command line to edit large text files.
 
 This is also my first time using markdown or uploading to github...fingers crossed!
 
-##Remove first line from text file
+Remove first line from text file
+-----
 
 Useful for getting rid of the first comment line that Stacks adds to all its output files. This is necessary for getting certain scripts and programs to run using these files.
 
->sed -i.bak 1d /path/to/file
+	sed -i.bak 1d /path/to/file
 
 This also creates a backup of the original file with the extention '.bak'. You can also use the wildcard (*) to do multiple files at once.
 
-##Remove line based on individual label
+Remove line based on individual label
+-----
 
 This will remove an entire line of a text file that contains a keyword. This is particularly useful when you want to delete individuals from a large genepop or other input file.
 
->sed -i.bak '/pattern to match/d' ./path/to/file
+	sed -i.bak '/pattern to match/d' ./path/to/file
 
 This will also create a backup as above. Replace where it says 'pattern to match' with a keyword from the line you want to delete. Beware that this will delete all lines containing that word, so it's best for unique identifiers like sample names, for example:
 
->sed -i.bak '/VC_X1528/d' ./batch_1.structure.tsv
+	sed -i.bak '/VC_X1528/d' ./batch_1.structure.tsv
 
-##Sample a subset of SNPs following Stacks denovo assembly
+Sample a subset of SNPs following Stacks denovo assembly
+-------
 
 Produces a whitelist file containing a random subset of SNPs from your denovo assembly that you can then give to populations. This is great if you want to test out some analyses without having to input all of your SNPs at once, which tends to be a lot slower! Julian Catchen himself posted this one on the Stacks Google Group.
 
->grep -v "^#" batch_1.sumstats.tsv | 
-cut -f 2 | 
-sort | 
-uniq | 
-shuf | 
-head -n 1000 | 
-sort -n > whitelist.tsv 
+	grep -v "^#" batch_1.sumstats.tsv | 
+	cut -f 2 | 
+	sort | 
+	uniq | 
+	shuf | 
+	head -n 1000 | 
+	sort -n > whitelist.tsv 
 
 Julian:
 >This command does the following at each step: 
@@ -54,3 +58,7 @@ Julian:
  > you should see different sets of IDs in the files. 
  > 
  > If you want more than 1000 loci, just put in the number you want (1000-5000 loci seems to work well with STRUCTURE, but it can't handle huge numbers of loci). 
+ 
+ Adding more CPUs to the slurm run on server:
+ 
+ 	#SBATCH --cpus-per-task=6

@@ -12,8 +12,8 @@ To begin editing this and other documents in the repository, first navigate to t
 
 A general description on how to collaborate on github can be found [here](http://code.tutsplus.com/tutorials/how-to-collaborate-on-github--net-34267).
 
-1. github ongoing collaborations
------
+1. Github for ongoing collaborations
+====
 
 I made a handy-dandy short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
 
@@ -120,8 +120,11 @@ Filter out several levels of missing data and of minor allele frequencies to eva
 
 The results of what we found for the different filters can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt). 
 
+We found in our fastQC results shown [here]()*add picture from result* that after base #94 there were a high number of SNPs which were likely due to error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list. The code used and results can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/filtering_code.md).
 
+We eliminated those loci using ***plink*** with the following code: 
 
+	
 
 7. Re-running **populations** with a whitelist of loci and individuals that passed filters
 ------
@@ -147,6 +150,7 @@ In order to get from the .map file to the whitelist file format, open *_c.map fi
 	replace with \1
 
 Using the **.irem** file from the second iteration of *plink* (in our example named with termination **"_b"**), remove any individuals from the first popmap if they did not pass **plink** filters so that they are excluded from the analysis (i.e. individuals with too much missing data). 
+
 
 
 Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters.
