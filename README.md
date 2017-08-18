@@ -118,14 +118,14 @@ Third, filter out minor allele frequency:
  
 Filter out several levels of missing data and of minor allele frequencies to evaluate missingness of final matrix and potential population metrics that vary (esp. with maf filters). 
 
-The results of what we found for the different filters can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt). 
+[These](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt) are the results that I got with Daryl's dataset. 
 
 	
 
 Re-running **populations** with a whitelist of loci and individuals that passed filters
 ------
 
-We need to make a ***whitelist*** file, which is a list of the loci to include based on the plink results (i.e. on amount of missing data in locus). The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
+To be able to successfully run *populations* with this new set of loci, we need to make a ***whitelist*** file that only has the locis ID and excludes the SNP position ID. Thus, only the first string before the underscore needs to be kept. The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
 
 		3
 		7
@@ -138,7 +138,7 @@ We need to make a ***whitelist*** file, which is a list of the loci to include b
 		22
 		
 		
-In order to get from the .map file to the whitelist file format, open *_c.map file in Text Wrangler, and do find and replace arguments using **grep**:
+In order to get from the .map file to the whitelist file format for input in *populations*, open *_c.map file in Text Wrangler, and do find and replace arguments using **grep**:
 
 
 	search for \d\t(\d*)_\d*\t\d\t\d*$
@@ -160,9 +160,9 @@ Now we can run populations again using the whitelist of loci and the updated pop
 	cat loci-rows.txt | awk '/_96/ {count++} END {print count}' 
 
 
-We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/filtering_code.md). 
+We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/loci-SNPs.txt). 
 
-In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands wih the .map output from ***populations*** as follows: 
+In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands with the **.map** output from ***populations*** as follows: 
 
 	\d\t(\d*_\d*)\t\d\t\d*$ ##find
 	\1 ##replace
@@ -172,9 +172,10 @@ Saving the file as "loci_rows-to-filter.txt", we then saved the list of loci tha
 	cat loci_rows-to-filter.txt | awk '/_95/ {print}' > blacklist_95.txt
 
 
-We then eliminated those loci using ***plink***, the .ped and .map outputs from populations (file terminations don't need to be added if flag is --file) and the blacklist of SNP position #95 using with the following code: 
+We then eliminated those loci using ***plink***, the .ped and .map outputs from populations and the blacklist of SNP position #95 using with the following code: 
 
 	plink --file Puma-filtered-maf_01 --exclude blacklist_95.txt --recode --out filtered_b --noweb
+	### file terminations don't need to be added if flag is --file
 
 
 Basic ***adegenet*** and population stats analyses for the best filtering schemes

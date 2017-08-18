@@ -1,5 +1,3 @@
-PUMA things:
-
 When filtering loci with less than 60% of individuals sampled and 
 individuals with less than 50% data: 
 before final filter: 28766 SNPs
