@@ -120,7 +120,30 @@ Filter out several levels of missing data and of minor allele frequencies to eva
 
 [These](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt) are the results that I got with Daryl's dataset. 
 
+**ADDITIONAL FILTER:** We found in our fastQC results shown [here]() *add picture from result* that after base #94 there were a high number of SNPs which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
+
+	cat loci-rows.txt | awk '/_90/ {count++} END {print count}'
 	
+	cat loci-rows.txt | awk '/_96/ {count++} END {print count}' 
+
+
+We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/loci-SNPs.txt). 
+
+In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands with the **.map** output from ***populations*** as follows: 
+
+	\d\t(\d*_\d*)\t\d\t\d*$ ##find
+	\1 ##replace
+
+Saving the file as "loci_rows-to-filter.txt", we then saved the list of loci that should be blacklisted using this code: 
+
+	cat loci_rows-to-filter.txt | awk '/_95/ {print}' > blacklist_95.txt
+
+
+We then eliminated those loci using ***plink***, the .ped and .map outputs from populations and the blacklist of SNP position #95 using with the following code: 
+
+	plink --file Puma-filtered-maf_01 --exclude blacklist_95.txt --recode --out filtered_b --noweb
+	### file terminations don't need to be added if flag is --file
+
 
 Re-running **populations** with a whitelist of loci and individuals that passed filters
 ------
@@ -152,30 +175,6 @@ Now we can run populations again using the whitelist of loci and the updated pop
 
 	populations -b 1 -P ./ -M ./popmap.txt  -p 1 -r 0.5 -W Pr-whitelist --write_random_snp --structure --plink --vcf --genepop --fstats --phylip
 
-
-**ADDITIONAL FILTER:** We found in our fastQC results shown [here]() *add picture from result* that after base #94 there were a high number of SNPs which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
-
-	cat loci-rows.txt | awk '/_90/ {count++} END {print count}'
-	
-	cat loci-rows.txt | awk '/_96/ {count++} END {print count}' 
-
-
-We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/loci-SNPs.txt). 
-
-In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands with the **.map** output from ***populations*** as follows: 
-
-	\d\t(\d*_\d*)\t\d\t\d*$ ##find
-	\1 ##replace
-
-Saving the file as "loci_rows-to-filter.txt", we then saved the list of loci that should be blacklisted using this code: 
-
-	cat loci_rows-to-filter.txt | awk '/_95/ {print}' > blacklist_95.txt
-
-
-We then eliminated those loci using ***plink***, the .ped and .map outputs from populations and the blacklist of SNP position #95 using with the following code: 
-
-	plink --file Puma-filtered-maf_01 --exclude blacklist_95.txt --recode --out filtered_b --noweb
-	### file terminations don't need to be added if flag is --file
 
 
 Basic ***adegenet*** and population stats analyses for the best filtering schemes
