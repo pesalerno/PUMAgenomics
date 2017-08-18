@@ -184,11 +184,11 @@ Basic ***adegenet*** and population stats analyses for the best filtering scheme
 We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 75% individuals genotyped) and the three maf filters. [We found]() that there was very little change from maf 0.01 to maf 0.02, and essentially no change from maf 0.02 to 0.05. 
 
 
-We then proceeded to use the maf 0.01 matrix, which had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](). 
+We then proceeded to use the maf 0.01 matrix, which had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
 
 
 
-The R code used for these analyses can be found [here]() and continues to be updated. 
+The R code used for these analyses can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Pumas-adegenet.R) and continues to be updated. 
 
 
 
