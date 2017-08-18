@@ -12,15 +12,15 @@ To begin editing this and other documents in the repository, first navigate to t
 
 A general description on how to collaborate on github can be found [here](http://code.tutsplus.com/tutorials/how-to-collaborate-on-github--net-34267).
 
-1. Github for ongoing collaborations
-====
+Github for ongoing collaborations
+-----
 
 I made a handy-dandy short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
 
 
  
 
-2. Demultiplexing in stacks
+Demultiplexing in stacks
 -----
 
 Let's have a code that we share for cleaning the data with ***process_radtags***. Are we all using default settings?
@@ -29,7 +29,7 @@ Let's have a code that we share for cleaning the data with ***process_radtags***
 
 
 
-3. Estimating sequencing error and optimizing stacks parameters 
+Estimating sequencing error and optimizing stacks parameters 
 -----
 
 This is following the Mastretta-yanes et al paper. 
@@ -59,7 +59,7 @@ k | 3 | 2 | 2 | 5 |
 	
 	>>add info for R code once it's figured out
 
-4. Genotyping
+Genotyping
 -------
 
 After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
@@ -87,7 +87,7 @@ After genotyping, re-run dataset using ***rxstacks***
 
 Need to re-run cstacks and sstacks portion of stacks pipeline. 
 
-5. Exporting SNP matrix in **populations** (STACKS) using minimal filtering.
+Exporting SNP matrix in **populations** (STACKS) using minimal filtering.
 ------
 
 When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
@@ -99,7 +99,7 @@ When you are done, use minimum filter settings in **Stacks** in order to get the
 	populations -b 2 -P /project/wildgen/rgagne/combine/populations/pop-comb-c/ -M /project/wildgen/rgagne/combine/populations/pop-map-combine -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
 
 
-6. Post-processing of SNP matrix
+Post-processing of SNP matrix
 -------
 
 Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filter our dataset in several steps.
@@ -122,7 +122,7 @@ The results of what we found for the different filters can be found [here](https
 
 	
 
-7. Re-running **populations** with a whitelist of loci and individuals that passed filters
+Re-running **populations** with a whitelist of loci and individuals that passed filters
 ------
 
 We need to make a ***whitelist*** file, which is a list of the loci to include based on the plink results (i.e. on amount of missing data in locus). The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
@@ -153,7 +153,7 @@ Now we can run populations again using the whitelist of loci and the updated pop
 	populations -b 1 -P ./ -M ./popmap.txt  -p 1 -r 0.5 -W Pr-whitelist --write_random_snp --structure --plink --vcf --genepop --fstats --phylip
 
 
-**ADDITIONAL FILTER:** We found in our fastQC results shown [here]()*add picture from result* that after base #94 there were a high number of SNPs which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
+**ADDITIONAL FILTER:** We found in our fastQC results shown [here]() *add picture from result* that after base #94 there were a high number of SNPs which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
 
 	cat loci-rows.txt | awk '/_90/ {count++} END {print count}'
 	
@@ -174,17 +174,17 @@ Saving the file as "loci_rows-to-filter.txt", we then saved the list of loci tha
 
 We then eliminated those loci using ***plink***, the .ped and .map outputs from populations (file terminations don't need to be added if flag is --file) and the blacklist of SNP position #95 using with the following code: 
 
-	plink --file Puma-filtered-maf_01 --exclude blacklist_95.txt --noweb
+	plink --file Puma-filtered-maf_01 --exclude blacklist_95.txt --recode --out filtered_b --noweb
 
 
-8. Basic ***adegenet*** and population stats analyses for the best filtering schemes
+Basic ***adegenet*** and population stats analyses for the best filtering schemes
 -----
 
 
 We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 75% individuals genotyped) and the three maf filters. [We found]() that there was very little change from maf 0.01 to maf 0.02, and essentially no change from maf 0.02 to 0.05. 
 
 
-We then proceeded to use the maf 0.01 matrix, which had xxxx Snps, and can be found [here](). 
+We then proceeded to use the maf 0.01 matrix, which had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](). 
 
 
 
