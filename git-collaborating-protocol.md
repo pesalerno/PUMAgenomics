@@ -1,23 +1,23 @@
 Protocol for collaborating on git
 ------
 
-Ideally, every time to begin to work on your local machine files for the git repository, you PULL before you do anything. So, form within your active git repo, type: 
+Ideally, every time you begin to work on your local machine files for the git repository, you PULL before you do anything else. So, from within your active git repo, you type: 
 
 		git pull
 
-And it should update you to the online repo.... Now let's say you had forgotten to pull, and made a bunch of changes in your local computer.... if you pull without doing anything else... you lose ALL the work on your local computer that you didn't commit! So, here's what to do before doing ***git pull*** or anything else with your local git repo before connecting online. 
+And it should update you to the online repo.... Now let's say you had forgotten to pull, and made a bunch of changes in your local computer.... if you pull without doing anything else... **you lose ALL the work on your local computer that you didn't commit!** So, here's what to do before doing ***git pull*** or anything else with your local git repo before connecting online. 
 
-1. First, check the stats:
+1. First, check the status:
 
 		git status 
 	
-If there is nothing there, just ***git pull*** hte online repo. If something is flagged as changed but not added, then do the usual:
+If there is nothing there to update, just ***git pull*** the online repo. If something is flagged as changed but not added, then do the usual:
 
 		git add name_of_file(s)
 		git commit -m "message for commiting change(s)"
 		git push origin master
 
-Now, if it's not up-to-date with the online branch of the repository, ti will give you an error and not upload! Now what? 
+Now, if it's not up-to-date with the online branch of the repository, it will give you an error and not upload! Now what? 
 
 		git pull
 
@@ -33,9 +33,9 @@ VOILA! Now you can do:
 
 		git push origin master
 
-with no issues! your commits/changes have been merged to the other branch... this is provided you didn't change the EXACT same lines that had been changes on the online branch....
+with no issues! your commits/changes have been merged to the other branch... this is provided you didn't change the EXACT same lines that had been changes on the online branch.... In that case, you'll go down another rabbit hole... haha. 
 
-In general, to avoid this, it's better to always just PULL before any changes.... but it happens to me a lot that I forget, so then NEVER forget to check status and commit any changes BEFORE you pull an older branch to not lose your work!!
+In general, to avoid all this, it's better to always just PULL before any changes.... but it happens to me a lot that I forget, so then NEVER forget to check status and commit any changes BEFORE you pull an older branch to not lose your work!!
 
 	
 
