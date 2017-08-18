@@ -161,7 +161,10 @@ To be able to successfully run *populations* with this new set of loci, we need 
 		22
 		
 		
-In order to get from the .map file to the whitelist file format for input in *populations*, open *_c.map file in Text Wrangler, and do find and replace arguments using **grep**:
+We decided to use the final filters of loci with 75% individuals sequenced, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
+
+
+In order to get the nice *populations* stats outputs from STACKS, we need to re-run populations using a whitelist. To get this, open the ***.map*** file from the last ***plink*** output in Text Wrangler, and do find and replace arguments using **grep**:
 
 
 	search for \d\t(\d*)_\d*\t\d\t\d*$
@@ -171,10 +174,11 @@ Using the **.irem** file from the second iteration of *plink* (in our example na
 
 
 
-Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters.
+Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters. 
 
 	populations -b 1 -P ./ -M ./popmap.txt  -p 1 -r 0.5 -W Pr-whitelist --write_random_snp --structure --plink --vcf --genepop --fstats --phylip
 
+	##eliminate the --vcf output flag if you want to save computational time! can take hours to write.... 
 
 
 Basic ***adegenet*** and population stats analyses for the best filtering schemes
@@ -183,8 +187,6 @@ Basic ***adegenet*** and population stats analyses for the best filtering scheme
 
 We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 75% individuals genotyped) and the three maf filters. [We found](https://github.com/pesalerno/PUMAgenomics/blob/master/Pop_ID.pdf) that there was very little change from maf 0.01 to maf 0.02, and essentially no change from maf 0.02 to 0.05. 
 
-
-We then proceeded to use the maf 0.01 matrix, which had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
 
 
 
