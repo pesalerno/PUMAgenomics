@@ -7,9 +7,11 @@ library("hierfstat")
 
 
 
-myFile <- import2genind("Puma_75_maf_01.stru") ##12786 SNPs and 134 inds
-myFile <- import2genind("Puma_75_maf_02.stru") ##11915 SNPs and 134 inds
-myFile <- import2genind("Puma_75_maf_05.stru") ###10315 SNPs and 134 inds
+#myFile <- import2genind("Puma_75_maf_01.stru") ##12786 SNPs and 134 inds
+#myFile <- import2genind("Puma_75_maf_02.stru") ##11915 SNPs and 134 inds
+#myFile <- import2genind("Puma_75_maf_05.stru") ###10315 SNPs and 134 inds
+
+myFile <- import2genind("Puma_filtered_08_17_17.stru") #12456 SNPs and 134 inds
 
 
 ##QUESTIONS FOR STRUCTURE FILES:
@@ -24,7 +26,6 @@ myFile ##look at your transformed genind file
 
 ########################
 help(scaleGen)
-X <- scaleGen(myFile, NA.method="asis")
 X <- scaleGen(myFile, NA.method="zero")
 X[1:5,1:5]
 
@@ -89,7 +90,18 @@ contrib<-loadingplot(dapc2$var.contr,axis=1,thres=.07,lab.jitter=1)
 
 compoplot(dapc2,posi="bottomright",lab="",
 			ncol=1,xlab="individuals")
-help(hierfstat)
+
+
+##lab<-pop(myFile)
+##compoplot(dapc2,subset=1:50, posi="bottomright",lab="",
+			ncol=2, lab="lab")
+
+
+##To find the potential migrant IDs:
+assignplot(dapc2, subset=1:10)			
+assignplot(dapc2, subset=51:100)
+assignplot(dapc2, subset=101:134)
+
 
 ###################################################
 ###     DIVERSITY AND POPULATION MEASURES       ###
@@ -121,5 +133,44 @@ library(diveRsity)
 divBasic(infile=".stru", outfile="", gp=2, bootstraps=NULL, HWEexact=FALSE)
 
 
+##########################
+###  PCAdapt PACKAGE  ####
+##########################
+library(pcadapt)
+
+file<-"puma-FINAL.ped"
+myFile<-read.pcadapt(file, type="ped")
+
+
+#by default data is assumed to be diploid
+x <- pcadapt(myFile, K=20) 
+##to choose number of PCs based on proportion of variance
+plot(x,option="screeplot")
+
+##to choose number of PCs based on population structure
+####the choice of K can b elimited to the values of K that correspond to a relevant level of population structure
+
+##THEN PICK NUMBER OF K DESIRED
+x<-pcadapt(myFile,K=2)
+summary(x)
+
+plot(x,option="manhattan")
+plot(x,option="qqplot", threshold=0.1)
+hist(x$pvalues,xlab="p-values",main=NULL,breaks=50)
+plot(x,option="stat.distribution")
+
+###ARBITRATY CUTOFF OF ALPHA VALUES TO CONSIDER OUTLIERS
+
+library(qvalue)
+qval<-qvalue(x$pvalues)$qvalues
+alpha<-0.1
+outliers<-which(qval<alpha)
+print(outliers)
+outliers
+
+##which PCs are most correlated to the outliers?
+snp_pc<-get.pc(x,outliers)
+head(snp_pc)
+snp_pc
 
 
