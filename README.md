@@ -191,4 +191,4 @@ We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 
 The R code used for these analyses and for PCAdapt can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Pumas-adegenet.R) and continues to be updated. 
 
 
-Here are the final [population stats]()  for the cleaned matrix  and the [PCA]() and [DAPC]() and [PCAdapt]() results. 
+Here are the final results for the cleaned matrix: [PCA](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_PCA.pdf), [DAPC](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_DAPC.pdf), [compoplot](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_compoplot.pdf) and [PCAdapt](https://github.com/pesalerno/PUMAgenomics/blob/master/PCAdapt-outliers.txt). 
