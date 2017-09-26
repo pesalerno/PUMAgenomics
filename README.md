@@ -181,6 +181,17 @@ Now we can run populations again using the whitelist of loci and the updated pop
 	##eliminate the --vcf output flag if you want to save computational time! can take hours to write.... 
 
 
+Filtering out outlier loci
+------
+
+We ran PCAdapt using [this code](https://github.com/pesalerno/PUMAgenomics/blob/master/Pumas-adegenet.R) and found only 12 outliers (using K=2). PCAdapt outputs the "order" of the loci rather than the IDs of the loci themselves, so to exclude the outliers we generated a blacklist like this:
+
+
+	awk '{print $2495,$2800,$5456,$5556,$7894,$8230,$8875,$10204,$11417,$11493,$12255,$12277}' puma-FINAL.stru > blacklist-PCAdapt-b
+
+Which generates a line of the loci, you do find space (.) and replace with new line (\n) and you get your final blacklist file for excluding SNPs based on PCAdapt. 
+
+
 Basic ***adegenet*** and population stats analyses for the best filtering schemes
 -----
 
