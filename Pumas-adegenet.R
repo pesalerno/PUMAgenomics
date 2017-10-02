@@ -11,7 +11,7 @@ library("hierfstat")
 #myFile <- import2genind("Puma_75_maf_02.stru") ##11915 SNPs and 134 inds
 #myFile <- import2genind("Puma_75_maf_05.stru") ###10315 SNPs and 134 inds
 
-myFile <- import2genind("Puma_filtered_08_17_17.stru") #12456 SNPs and 134 inds
+myFile <- import2genind("Puma_filtered_08_17_17_POP1.stru") #12456 SNPs and 134 inds
 
 
 ##QUESTIONS FOR STRUCTURE FILES:
@@ -87,90 +87,92 @@ contrib<-loadingplot(dapc2$var.contr,axis=1,thres=.07,lab.jitter=1)
 ####################
 ###  COMPOPLOT   ###
 ####################
-
 compoplot(dapc2,posi="bottomright",lab="",
-			ncol=1,xlab="individuals")
-
+			ncol=1,xlab="individuals") ##using original population IDs
 
 ##lab<-pop(myFile)
 ##compoplot(dapc2,subset=1:50, posi="bottomright",lab="",
 			ncol=2, lab="lab")
-
 
 ##To find the potential migrant IDs:
 assignplot(dapc2, subset=1:10)			
 assignplot(dapc2, subset=51:100)
 assignplot(dapc2, subset=101:134)
 
-
-###################################################
-###     DIVERSITY AND POPULATION MEASURES       ###
-###################################################
-
-library(hierfstat)
-####load dataset with struture-informed populations
-
-
-basicstat<-basic.stats(myFile, diploid=TRUE)
-basicstat
-Hobs<-basicstat$Ho
-Hobs
-write(Hobs, file="Xr-Hobs-03-22.txt", ncol=7)
-
-Hexp<-basicstat$Hs
-Hexp
-write(Hexp, file="Xr-Hexp-03-22.txt", ncol=7)
-
-Fis<-basicstat$Fis
-Fis
-write(Fis, file="Xr-Fis-03-22.txt", ncol=7)
-
-bartlett.test(list(basicstat$Hs, basicstat $Ho)) ##this gives you a statistical
-##measure of whether observed and expected heterozygosity are different
-
-
-library(diveRsity)
-divBasic(infile=".stru", outfile="", gp=2, bootstraps=NULL, HWEexact=FALSE)
-
-
-##########################
-###  PCAdapt PACKAGE  ####
-##########################
+####################################
+###  PCAdapt ANALYSIS - Re-Done ####
+####################################
+###loading package and file
 library(pcadapt)
-
 file<-"puma-FINAL.ped"
 myFile<-read.pcadapt(file, type="ped")
+myFile
+#NOTE:by default data is assumed to be diploid
 
-
-#by default data is assumed to be diploid
-x <- pcadapt(myFile, K=20) 
-##to choose number of PCs based on proportion of variance
+##################################
+### 1. DETERMINE THE DESIRED K ###
+##################################
+x <- pcadapt(myFile, K=20) ###default maf = 0.05
 plot(x,option="screeplot")
+##The idea is to choose the number of PCs after which population structure
+##is not evident. The "ideal" cluster scenario seems to be rarly seen 
+##(definitely in my datasets), so sometimes it's a little tricky. In this case, 
+##I believe there is a choice between K=2 (MOST of the structure) and K=4 (ALL 
+##of the structure). 
 
-##to choose number of PCs based on population structure
-####the choice of K can b elimited to the values of K that correspond to a relevant level of population structure
+##We could also mess around with maf thresholds and see if a different number of K is inferred...? 
+x2 <- pcadapt(myFile, K=20, min.maf = 0.01)
+plot(x2,option="screeplot") ##RESULT: NOPE!! they look exactly hte same... 
 
-##THEN PICK NUMBER OF K DESIRED
+####################################
+### 2. GENOME SCANS WITH PCAdapt ###
+####################################
+library(qvalue)
+##We will infer outliers using two thresholds of K and two thresholds of maf: 
+##1. K=2, maf=0.05
 x<-pcadapt(myFile,K=2)
-summary(x)
-
-plot(x,option="manhattan")
+plot(x,option="manhattan", threshold=0.1)
 plot(x,option="qqplot", threshold=0.1)
 hist(x$pvalues,xlab="p-values",main=NULL,breaks=50)
 plot(x,option="stat.distribution")
-
-###ARBITRATY CUTOFF OF ALPHA VALUES TO CONSIDER OUTLIERS
-
-library(qvalue)
 qval<-qvalue(x$pvalues)$qvalues
 alpha<-0.1
 outliers<-which(qval<alpha)
-print(outliers)
-outliers
+get.pc(x, outliers)
 
-##which PCs are most correlated to the outliers?
-snp_pc<-get.pc(x,outliers)
-head(snp_pc)
-snp_pc
+##################
+##2. K=2, maf=0.01
+x2<-pcadapt(myFile,K=2, min.maf = 0.01)
+plot(x2,option="manhattan", threshold=0.1)
+plot(x2,option="qqplot", threshold=0.1)
+hist(x2$pvalues,xlab="p-values",main=NULL,breaks=50)
+plot(x2,option="stat.distribution")
+qval2<-qvalue(x2$pvalues)$qvalues
+alpha2<-0.1
+outliers2<-which(qval2<alpha2)
+get.pc(x2, outliers2)
 
+##################
+##3. K=4, maf=0.05
+x3<-pcadapt(myFile,K=4, min.maf = 0.05)
+plot(x3,option="manhattan", threshold=0.1)
+plot(x3,option="qqplot", threshold=0.1)
+hist(x3$pvalues,xlab="p-values",main=NULL,breaks=50)
+plot(x3,option="stat.distribution")
+qval3<-qvalue(x3$pvalues)$qvalues
+alpha3<-0.1
+outliers3<-which(qval3<alpha3)
+get.pc(x3, outliers3)
+
+##################
+##4. K=4, maf=0.01
+x4<-pcadapt(myFile,K=4, min.maf = 0.01)
+plot(x4,option="manhattan", threshold=0.1)
+plot(x4,option="qqplot", threshold=0.1)
+hist(x4$pvalues,xlab="p-values",main=NULL,breaks=50)
+plot(x4,option="stat.distribution")
+qval4<-qvalue(x4$pvalues)$qvalues
+alpha4<-0.1
+outliers4<-which(qval4<alpha4)
+get.pc(x4, outliers4)
 

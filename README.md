@@ -103,20 +103,14 @@ Third, we filtered out based on minor allele frequency cutoffs:
  
 We did three maf cutoffs (0.01, 0.02, 0.05) to evaluate missingness of final matrices and whether basic population analyses vary with them. Based on [these](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt) results, we decided to be more stringent on initial loci filtered out (keep loci present in at least 75% of individuals) and less stringent on maf (filter out loci with maf<0.01). 
 
-**ADDITIONAL FILTER:** We found in our fastQC results that after base #94 there were a high number of SNPs which were likely due to sequencing error. 
-
-![](https://github.com/pesalerno/PUMAgenomics/blob/master/reads-SNPposition.png)<br>
-
-To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
+**ADDITIONAL FILTER:** We found that after base #94 there were a high number of SNPs ([see here](https://github.com/pesalerno/PUMAgenomics/blob/master/reads-SNPposition.png)which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
 
 	cat loci-rows.txt | awk '/_90/ {count++} END {print count}'
 	
 	cat loci-rows.txt | awk '/_96/ {count++} END {print count}' 
 
 
-We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/loci-SNPs.txt). 
-
-In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands with the **.map** output from ***populations*** as follows: 
+We decided to only eliminate the last base sequenced (#95) from the SNP file based on the [numbers obtained](https://github.com/pesalerno/PUMAgenomics/blob/master/loci-SNPs.txt). In order to create a blacklist of loci to eliminate from the SNP matrix, we used the following **grep** commands with the **.map** output from ***populations*** as follows: 
 
 	\d\t(\d*_\d*)\t\d\t\d*$ ##find
 	\1 ##replace
@@ -132,40 +126,31 @@ We then eliminated those loci using ***plink***, the .ped and .map outputs from 
 	### file terminations don't need to be added if flag is --file
 
 
-Re-running **populations** with a whitelist of loci and individuals that passed filters
+Obtaining population stats using the program **populations** with a whitelist of loci and individuals that passed filters
 ------
+	
+For downstream analyses, we used the final filters of loci with 75% individuals sequenced, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
 
-To be able to successfully run *populations* with this new set of loci, we need to make a ***whitelist*** file that only has the locis ID and excludes the SNP position ID. Thus, only the first string before the underscore needs to be kept. The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
+
+In order to get the *populations* stats outputs from STACKS, we re-ran populations using a whitelist, which requires file that only has the locis ID and excludes the SNP position ID. Thus, only the first string before the underscore needs to be kept. The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
 
 		3
 		7
 		521
 		11
 		46
-		103
-		972
-		2653
-		22
-		
-		
-We decided to use the final filters of loci with 75% individuals sequenced, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
 
-
-In order to get the nice *populations* stats outputs from STACKS, we need to re-run populations using a whitelist. To get this, open the ***.map*** file from the last ***plink*** output in Text Wrangler, and do find and replace arguments using **grep**:
+We used the ***.map*** output from the last ***plink*** filter in Text Wrangler, and generated the populations whitelist using find and replace arguments using **grep**:
 
 
 	search for \d\t(\d*)_\d*\t\d\t\d*$
 	replace with \1
 
-Using the **.irem** file from the second iteration of *plink* (in our example named with termination **"_b"**), remove any individuals from the first popmap if they did not pass **plink** filters so that they are excluded from the analysis (i.e. individuals with too much missing data). 
-
-
-
-Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters. 
+Based the **.irem** file from the second iteration of *plink* we removed from the popmap (to use in populations input) the only  individual that did not pass **plink** filter (i.e. individuals with >50% missing data). Now we can run populations again using the whitelist of loci and the updated popmap file for loci and individuals to retain based on the plink filters. 
 
 	populations -b 1 -P ./ -M ./popmap.txt  -p 1 -r 0.5 -W Pr-whitelist --write_random_snp --structure --plink --vcf --genepop --fstats --phylip
 
-	##eliminate the --vcf output flag if you want to save computational time! can take hours to write.... 
+	
 
 
 Filtering out outlier loci
@@ -176,7 +161,7 @@ We ran PCAdapt using [this code](https://github.com/pesalerno/PUMAgenomics/blob/
 
 	awk '{print $2495,$2800,$5456,$5556,$7894,$8230,$8875,$10204,$11417,$11493,$12255,$12277}' puma-FINAL.stru > blacklist-PCAdapt-b
 
-Which generates a line of the loci, you do find space (.) and replace with new line (\n) and you get your final blacklist file for excluding SNPs based on PCAdapt. 
+Which generates a line of the loci, the doing find *"space"* and replace with *"new line"* (\n) we obtained our final blacklist file for excluding SNPs based on PCAdapt. 
 
 
 Basic ***adegenet*** and population stats analyses for the best filtering schemes
