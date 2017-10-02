@@ -1,21 +1,11 @@
 PUMAgenomics
 ======
+All the material in this repository is Intellectual Property of PE Salerno, D Trumbo and WC Funk @ Colorado State University. To use content, please cite accordingly. 
 
-First, we start out generating our [markdown](https://en.wikipedia.org/wiki/Markdown) document with any available program. I use [MOU](http://25.io/mou/) which is great since it live updates your document based on your code, so it's super easy for learning, but I think it's only for mac. 
 
-
-To begin editing this and other documents in the repository, first navigate to the folder where you want to "clone" this repository to, then initialize a repository and clone the repository:
-
-	cd GITHUB
-	git init
-	git clone https://github.com/pesalerno/PUMAgenomics
-
-A general description on how to collaborate on github can be found [here](http://code.tutsplus.com/tutorials/how-to-collaborate-on-github--net-34267).
-
-Github for ongoing collaborations
 -----
 
-I made a handy-dandy short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
+I made a short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
 
 
  
@@ -23,18 +13,16 @@ I made a handy-dandy short protocol on some practices for easy git collaborating
 Demultiplexing in stacks
 -----
 
-Let's have a code that we share for cleaning the data with ***process_radtags***. Are we all using default settings?
+The code used for demultiplexing and cleaning reads in ***process_radtags*** was:
 
 	process_radtags -f /path/to/file/sequence.fastq -b /path/to/file/barcodes-names.txt -o /path/output-folder -c -q -r -D -e nlaIII -i fastq
 
 
 
-Estimating sequencing error and optimizing stacks parameters 
+Estimating genotyping error and optimizing stacks parameters 
 -----
 
-This is following the Mastretta-yanes et al paper. 
-
-First, you need to run several iterations of the parameters in denovo_map in order to explore parameter space with the R code of Mastretta-Yanes. You only need to run these analyses with the intra- and inter- library replicates. 
+This is following the [Mastretta-yanes et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12291/abstract) paper. First, we ran several iterations of the parameters in denovo_map in order to explore parameter space with the R code of Mastretta-Yanes. You only need to run these analyses with the intra- and inter- library replicates. 
 
 
 
@@ -62,19 +50,15 @@ k | 3 | 2 | 2 | 5 |
 Genotyping
 -------
 
-After you find your error rate and estimate the best parameter settings, you run your entire dataset with the optimal parameters. 
+After finding the lowest genotyping error rate for our dataset and the appropriate *denovo_map.pl* parameters, we used the following code for our final genotyping:
 
-	>>denovo_map.pl 
-	#!/bin/bash
-        #SBATCH --cluster specific info
-
-        mkdir /path/to/denovomap_out
 
         denovo_map.pl -T 16 -m 5 -M 2 -n 2 -S -b 2 -X "ustacks:--max_locus_stacks [3]" -o /path/to/denovomap_out/ \
         -s /path/to/rad_tags/filename.fq \ 
-        -s /path/to/rad_tags/filename.fq \
-        -s /path/to/rad_tags/filename.fq \
-        -s /path/to/rad_tags/filename.fq 
+
+_________
+_________
+We haven't really run the analyses with rxstacks... do we just elminate this for this pub? I think it's generally ok, but if it's done, we can add it somehow
 
 After genotyping, re-run dataset using ***rxstacks***
 
@@ -86,11 +70,14 @@ After genotyping, re-run dataset using ***rxstacks***
         rxstacks -b 2 -P /path/to/denovomap_out -o /path/to/rxstacks-out --conf_filter --prune_haplo --model_type bounded --bound_high 0.1 --lnl_lim -10.0 -t 8
 
 Need to re-run cstacks and sstacks portion of stacks pipeline. 
+_________
+_________
 
-Exporting SNP matrix in **populations** (STACKS) using minimal filtering.
+
+Filtering SNP matrix.
 ------
 
-When you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
+After genotyping, we first exported the SNP matrix with minimal filter in *populations* you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
 
 	>>populations 
 	#!/bin/bash
@@ -99,28 +86,28 @@ When you are done, use minimum filter settings in **Stacks** in order to get the
 	populations -b 2 -P /project/wildgen/rgagne/combine/populations/pop-comb-c/ -M /project/wildgen/rgagne/combine/populations/pop-map-combine -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
 
 
-Post-processing of SNP matrix
--------
 
-Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filter our dataset in several steps.
+Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filtered our dataset in several steps.
 
-First, filter out loci with too much missing data:
+First, we filtered out loci with too much missing data:
 
 	./plink --file input-name --geno 0.5 --recode --out output-filename_a --noweb
 
-Second, filter out individuals with too much missing data:
+Second, we filtered out individuals with too much missing data:
 
 	./plink --file input-filename_a --mind 0.5 --recode --out output-filename_b --noweb
 	
-Third, filter out minor allele frequency:
+Third, we filtered out based on minor allele frequency cutoffs:
 
 	./plink --file input-filename_b --maf 0.01 --recode --out output-filename_c --noweb
  
-Filter out several levels of missing data and of minor allele frequencies to evaluate missingness of final matrix and potential population metrics that vary (esp. with maf filters). 
+We did three maf cutoffs (0.01, 0.02, 0.05) to evaluate missingness of final matrices and whether basic population analyses vary with them. Based on [these](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt) results, we decided to be more stringent on initial loci filtered out (keep loci present in at least 75% of individuals) and less stringent on maf (filter out loci with maf<0.01). 
 
-[These](https://github.com/pesalerno/PUMAgenomics/blob/master/maf-filters.results.txt) are the results that I got with Daryl's dataset. 
+**ADDITIONAL FILTER:** We found in our fastQC results that after base #94 there were a high number of SNPs which were likely due to sequencing error. 
 
-**ADDITIONAL FILTER:** We found in our fastQC results shown [here]() *add picture from result* that after base #94 there were a high number of SNPs which were likely due to sequencing error. To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
+![](https://github.com/pesalerno/PUMAgenomics/blob/master/reads-SNPposition.png)<br>
+
+To filter them out, we first saw the number of times base #90-96 were found in a given SNP list using the following code: 
 
 	cat loci-rows.txt | awk '/_90/ {count++} END {print count}'
 	
