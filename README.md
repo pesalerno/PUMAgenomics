@@ -3,17 +3,12 @@ PUMAgenomics
 All the material in this repository is Intellectual Property of PE Salerno, D Trumbo and WC Funk @ Colorado State University. To use content, please cite accordingly. 
 
 
------
-
-I made a short protocol on some practices for easy git collaborating that can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/git-collaborating-protocol.md). 
-
-
- 
+----
 
 Demultiplexing in stacks
 -----
 
-The code used for demultiplexing and cleaning reads in ***process_radtags*** was:
+The code used We used  ***process_radtags*** to demultiplex pooled individuals and to filter reads based on Phred quality scores with the following code:
 
 	process_radtags -f /path/to/file/sequence.fastq -b /path/to/file/barcodes-names.txt -o /path/output-folder -c -q -r -D -e nlaIII -i fastq
 
@@ -22,7 +17,7 @@ The code used for demultiplexing and cleaning reads in ***process_radtags*** was
 Estimating genotyping error and optimizing stacks parameters 
 -----
 
-This is following the [Mastretta-yanes et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12291/abstract) paper. First, we ran several iterations of the parameters in denovo_map in order to explore parameter space with the R code of Mastretta-Yanes. You only need to run these analyses with the intra- and inter- library replicates. 
+Following the library replicates protocol design by [Mastretta-yanes et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12291/abstract), we ran several iterations of parameters values within suggested ranges in denovo_map in order to explore parameter space. These analyses were only ran with the intra- and inter- library replicates. 
 
 
 
@@ -58,42 +53,28 @@ After finding the lowest genotyping error rate for our dataset and the appropria
 
 _________
 _________
-We haven't really run the analyses with rxstacks... do we just elminate this for this pub? I think it's generally ok, but if it's done, we can add it somehow
-
-After genotyping, re-run dataset using ***rxstacks***
-
-	>>rxstacks
-	#!/bin/bash
-	#SBATCH cluster specific information 
-
-        mkdir /path/to/rxstacks-out
-        rxstacks -b 2 -P /path/to/denovomap_out -o /path/to/rxstacks-out --conf_filter --prune_haplo --model_type bounded --bound_high 0.1 --lnl_lim -10.0 -t 8
-
-Need to re-run cstacks and sstacks portion of stacks pipeline. 
-_________
-_________
 
 
-Filtering SNP matrix.
+Filtering the SNP matrix.
 ------
 
-After genotyping, we first exported the SNP matrix with minimal filter in *populations* you are done, use minimum filter settings in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
+After genotyping, we first exported the SNP matrix with minimal filter in *populations* in **Stacks** in order to get the most complete matrix to LATER filter in plink. 
 
 	>>populations 
 	#!/bin/bash
 	#SBATCH cluster specific information 
 
-	populations -b 2 -P /project/wildgen/rgagne/combine/populations/pop-comb-c/ -M /project/wildgen/rgagne/combine/populations/pop-map-combine -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
+	populations -b 2 -P /path/to/populations/pop-comb-c/ -M /path/to/popmap/pop-map.txt -fstats -k -p 1 -r 0.2  -t 8 --structure --genepop --vcf --plink --write_random_snp
 
 
 
 Using [PLINK](http://pngu.mgh.harvard.edu/~purcell/plink/summary.shtml), we filtered our dataset in several steps.
 
-First, we filtered out loci with too much missing data:
+First, we filtered out loci with too much missing data (more than 50%) individuals overall:
 
 	./plink --file input-name --geno 0.5 --recode --out output-filename_a --noweb
 
-Second, we filtered out individuals with too much missing data:
+Second, we filtered out individuals with too much missing data (more than 50%):
 
 	./plink --file input-filename_a --mind 0.5 --recode --out output-filename_b --noweb
 	
@@ -129,7 +110,7 @@ We then eliminated those loci using ***plink***, the .ped and .map outputs from 
 Obtaining population stats using the program **populations** with a whitelist of loci and individuals that passed filters
 ------
 	
-For downstream analyses, we used the final filters of loci with 75% individuals sequenced, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
+For downstream analyses, we used the final filters of loci with 75% individuals genotyped, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
 
 
 In order to get the *populations* stats outputs from STACKS, we re-ran populations using a whitelist, which requires file that only has the locis ID and excludes the SNP position ID. Thus, only the first string before the underscore needs to be kept. The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
@@ -171,7 +152,4 @@ Basic ***adegenet*** and population stats analyses for the best filtering scheme
 We ran ***adegenet*** for the more stringent filtered matrix (loci of more than 75% individuals genotyped) and the three maf filters. [We found](https://github.com/pesalerno/PUMAgenomics/blob/master/Pop_stats.pdf) that there was very little change from maf 0.01 to maf 0.02, and essentially no change from maf 0.02 to 0.05. 
 
 
-The R code used for these analyses and for PCAdapt can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Pumas-adegenet.R) and continues to be updated. 
-
-
-Here are the final results for the cleaned matrix: [PCA](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_PCA.pdf), [DAPC](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_DAPC.pdf), [compoplot](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_CO_compoplot.pdf) and [PCAdapt](https://github.com/pesalerno/PUMAgenomics/blob/master/PCAdapt-outliers.txt). 
+The R code used for these analyses and for PCAdapt can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Pumas-adegenet.R). 
