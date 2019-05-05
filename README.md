@@ -17,7 +17,7 @@ The code used We used  ***process_radtags*** to demultiplex pooled individuals a
 Estimating genotyping error and optimizing stacks parameters 
 -----
 
-Following the library replicates protocol design by [Mastretta-yanes et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12291/abstract), we ran several iterations of parameters values within suggested ranges in denovo_map in order to explore parameter space. These analyses were only ran with the intra- and inter- library replicates. 
+Following the library replicates protocol design by [Mastretta-yanes et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/1755-0998.12291/abstract), we ran several iterations of parameter values within suggested ranges in denovo_map in order to explore parameter space. These analyses were only ran with the intra- and inter- library replicates. 
 
 
 
@@ -38,9 +38,33 @@ k | 3 | 2 | 2 | 5 |
 
 **NOTE**: large -M values greatly increases computational time. 
 
-	>>add code for loading into mysql database
+Calculate Replicate Error Rates
+------
+
+We used [R code from Mastretta-Yanes et al.2015](https://github.com/AliciaMstt/RAD-error-rates) to calculate loci, allele, and SNP error rates.
+
+First, we labeled Stacks output data for individuals and replicates in same directory, e.g., as Sample1 (original), Sample1_r (replicate), etc.
 	
-	>>add info for R code once it's figured out
+Then, we exported data from Stacks into SNP (.snp) and Coverage (.cov) files. In order to create separate MySQL databases for each parameter settings run, we imported Stacks SNP (.snp) and Coverage (.cov) files into MySQL, and exported as tsv files, for calculating loci and allele error rates in R.
+
+	load_radtags.pl -D m3M2n4max3_radtags -p /path/to/denovo/output/folder/m3M2n4max3 -b 1 -B -e "m3M2n4max3" -c -t population
+	
+	index_radtags.pl -D m3M2n4max3_radtags -s /path/to/stacks/sql -c -t
+	
+	export_sql.pl -D m3M2n4max3_radtags -b 1 -f /path/to/denovo/output/folder/m3M2n4max3.SNP -o tsv -F pare_l=8 -a haplo -L 2
+
+	export_sql.pl -D m3M2n4max3_radtags -b 1 -f /path/to/denovo/output/folder/m3M2n4max3.COV -o tsv -F pare_l=8 -a haplo -L 2 -d
+	
+
+We then used Plink to create plink.raw files, for calculating SNP error rates in R.
+
+	plink --file m3M2n4max3.plink --recode A --out m3M2n4max3
+
+Finally, using the plink output we ran the [Mastretta-Yanes et al. (2015) R packages](https://github.com/AliciaMstt/RAD-error-rates).
+
+(1) LociAllele_error.R using a tsv file (formated as the output of export_sql from Stacks, but keeping only the columns CatalogID Consensus SNPs Sample1 Sample1_r Sample2 ...) converted to a genlight object, to calculate loci and allele error rates.
+
+(2) SNPs_error.R using a plink.raw file converted to a genlight object, to calculate SNP error rates.
 
 Genotyping
 -------
@@ -110,7 +134,7 @@ We then eliminated those loci using ***plink***, the .ped and .map outputs from 
 Obtaining population stats using the program **populations** with a whitelist of loci and individuals that passed filters
 ------
 	
-For downstream analyses, we used the final filters of loci with 75% individuals genotyped, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. The structure matrix can be found [here](https://github.com/pesalerno/PUMAgenomics/blob/master/Puma_filtered_08_17_17.stru). 
+For downstream analyses, we used the final filters of loci with 75% individuals genotyped, individuals with no less than 50% missing data, maf 0.01, and filtering out the last sequnced base (#95). This final matrix had 12456 SNPs and a genotyping rate of 0.88. 
 
 
 In order to get the *populations* stats outputs from STACKS, we re-ran populations using a whitelist, which requires file that only has the locis ID and excludes the SNP position ID. Thus, only the first string before the underscore needs to be kept. The whitelist file format is ordered as a simple text file containing one catalog locus per line: 
